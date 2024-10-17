@@ -1,0 +1,103 @@
+import random
+
+print("Welcome to Connect Four")
+print("-----------------------")
+
+# Variables
+possibleLetters = ["A", "B", "C", "D", "E", "F", "G"]
+gameBoard = [["" for _ in range(7)] for _ in range(6)]
+rows = 6
+cols = 7
+
+def printGameBoard():
+    """Print the game board."""
+    print("\n     A    B    C    D    E    F    G  ", end="")
+    for x in range(rows):
+        print("\n   +----+----+----+----+----+----+----+")
+        print(x, " |", end="")
+        for y in range(cols):
+            if(gameBoard[x][y] == "🔵"):
+                print("", gameBoard[x][y], end=" |")
+            elif(gameBoard[x][y] == "🔴"):
+                print("", gameBoard[x][y], end=" |")
+            else:
+                print(" ", gameBoard[x][y], end="  |")
+    print("\n   +----+----+----+----+----+----+----+")
+
+def modifyTurn(col, turn):
+    """Place a player's piece in the chosen column."""
+    for row in range(rows-1, -1, -1):
+        if gameBoard[row][col] == "":
+            gameBoard[row][col] = turn
+            return row
+
+def checkWin(turn):
+    """Check if there is a winning move."""
+    # Horizontal check
+    for row in range(rows):
+        for col in range(cols - 3):
+            if all(gameBoard[row][col + i] == turn for i in range(4)):
+                return True
+
+    # Vertical check
+    for col in range(cols):
+        for row in range(rows - 3):
+            if all(gameBoard[row + i][col] == turn for i in range(4)):
+                return True
+
+    # Diagonal (positive slope) check
+    for row in range(rows - 3):
+        for col in range(cols - 3):
+            if all(gameBoard[row + i][col + i] == turn for i in range(4)):
+                return True
+
+    # Diagonal (negative slope) check
+    for row in range(3, rows):
+        for col in range(cols - 3):
+            if all(gameBoard[row - i][col + i] == turn for i in range(4)):
+                return True
+    return False
+
+def isFull():
+    """Check if the board is full."""
+    return all(gameBoard[0][col] != "" for col in range(cols))
+
+# Main Game Loop
+turnCounter = 0
+gameOver = False
+
+while not gameOver:
+    printGameBoard()
+    
+    if turnCounter % 2 == 0:
+        turn = "🔴"
+        print("Player 1's Turn (🔴)")
+    else:
+        turn = "🔵"
+        print("Player 2's Turn (🔵)")
+    
+    while True:
+        # Ask player for a column (A to G)
+        columnInput = input("Choose a column (A-G): ").upper()
+        
+        if columnInput in possibleLetters:
+            col = possibleLetters.index(columnInput)
+            if gameBoard[0][col] == "":
+                row = modifyTurn(col, turn)
+                break
+            else:
+                print("That column is full! Try again.")
+        else:
+            print("Invalid column! Choose between A-G.")
+
+    # Check if the current player has won
+    if checkWin(turn):
+        printGameBoard()
+        print(f"Player {1 if turnCounter % 2 == 0 else 2} ({turn}) wins!")
+        gameOver = True
+    elif isFull():
+        printGameBoard()
+        print("It's a tie!")
+        gameOver = True
+    else:
+        turnCounter += 1
